@@ -45,7 +45,18 @@ public class PersonalDataApp {
 						continue;
 					}
 				}
-				
+				if((count == 1) && !paragraph.getTextContent().strip().startsWith("Residenza")) {
+					throw new RuntimeException("formato non corretto");
+				}
+				if((count == 2) && !paragraph.getTextContent().strip().startsWith("Nato a")) {
+					throw new RuntimeException("formato non corretto");
+				}
+				if((count == 4) && !paragraph.getTextContent().strip().startsWith("Cittadinanza")) {
+					throw new RuntimeException("formato non corretto");
+				}				
+				if((count == 5) && !paragraph.getTextContent().strip().startsWith("Codice Fiscale")) {
+					throw new RuntimeException("formato non corretto");
+				}				
 				if((count >= 8) && (count <= 11)) {
 					paragraph.setTextContent(null);
 				}
@@ -96,6 +107,12 @@ public class PersonalDataApp {
 		TextDocument document = TextDocument.loadDocument(inputFile);
 		List<Table> tableList = document.getTableList();
 		Table table = tableList.get(0);
+		if(!table.getCellByPosition(0, 0).getStringValue().strip().startsWith("Cognome") || 
+				!table.getCellByPosition(2, 0).getStringValue().strip().startsWith("Nome") ||
+				!table.getCellByPosition(0, 1).getStringValue().strip().startsWith("Codice Fiscale") ||
+				!table.getCellByPosition(0, 2).getStringValue().strip().startsWith("Nato a")) {
+			throw new RuntimeException("formato non corretto");
+		}
 		if(skipPersonalData) {
 			table.removeRowsByIndex(0, table.getRowCount());
 		} else {
@@ -123,6 +140,15 @@ public class PersonalDataApp {
 			cell.setStringValue(null);
 		}
 		table = tableList.get(3);
+		if(!table.getCellByPosition(0, 0).getStringValue().strip().startsWith("Residente a") ||
+				!table.getCellByPosition(3, 0).getStringValue().strip().startsWith("cap") ||
+				!table.getCellByPosition(0, 1).getStringValue().strip().startsWith("Indirizzo") ||
+				!table.getCellByPosition(0, 2).getStringValue().strip().startsWith("Domiciliato a") ||
+				!table.getCellByPosition(0, 3).getStringValue().strip().startsWith("Telefono") ||
+				!table.getCellByPosition(3, 3).getStringValue().strip().startsWith("email") ||
+				!table.getCellByPosition(0, 4).getStringValue().strip().startsWith("Titolo di studio")) {
+			throw new RuntimeException("formato non corretto");
+		}
 		if(skipPersonalData) {
 			table.removeRowsByIndex(0, table.getRowCount());
 		} else {
@@ -160,6 +186,17 @@ public class PersonalDataApp {
 		TextDocument document = TextDocument.loadDocument(inputFile);
 		List<Table> tableList = document.getTableList();
 		Table table = tableList.get(0);
+		if(!table.getCellByPosition(0, 0).getStringValue().strip().startsWith("COGNOME") || 
+				!table.getCellByPosition(0, 1).getStringValue().strip().startsWith("NOME") ||
+				!table.getCellByPosition(0, 2).getStringValue().strip().startsWith("DATA DI NASCITA") ||
+				!table.getCellByPosition(0, 3).getStringValue().strip().startsWith("NAZIONALITÀ") ||
+				!table.getCellByPosition(0, 4).getStringValue().strip().startsWith("DOMICILIO") ||
+				!table.getCellByPosition(0, 5).getStringValue().strip().startsWith("CODICE FISCALE") ||
+				!table.getCellByPosition(0, 6).getStringValue().strip().startsWith("TESSERA SANITARIA") ||
+				!table.getCellByPosition(0, 7).getStringValue().strip().startsWith("ISCRIZIONE CPI") ||
+				!table.getCellByPosition(0, 8).getStringValue().strip().startsWith("TELEFONO")) {
+			throw new RuntimeException("formato non corretto");
+		}
 		if(skipPersonalData) {
 			table.removeRowsByIndex(0, table.getRowCount());
 		} else {
