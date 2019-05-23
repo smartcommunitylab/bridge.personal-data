@@ -229,6 +229,51 @@ public class PersonalDataApp {
 		document.save(outputFile);
 	}
 	
+	public void extraxtSchedaPersonaleTemplate(String inputFile, String outputFile, 
+			boolean skipPersonalData) throws Exception {
+		TextDocument document = TextDocument.loadDocument(inputFile);
+		List<Table> tableList = document.getTableList();
+		Table table = tableList.get(1);
+		if(!table.getCellByPosition(0, 0).getStringValue().strip().startsWith("Nome") || 
+				!table.getCellByPosition(0, 1).getStringValue().strip().startsWith("Cognome") ||
+				!table.getCellByPosition(0, 2).getStringValue().strip().startsWith("Codice Fiscale") ||
+				!table.getCellByPosition(0, 3).getStringValue().strip().startsWith("Data di nascita") ||
+				!table.getCellByPosition(0, 4).getStringValue().strip().startsWith("Luogo di nascita") ||
+				!table.getCellByPosition(0, 5).getStringValue().strip().startsWith("Cittadinanza") ||
+				!table.getCellByPosition(0, 6).getStringValue().strip().startsWith("Indirizzo di Residenza") ||
+				!table.getCellByPosition(0, 7).getStringValue().strip().startsWith("Data di ingresso in Italia") ||
+				!table.getCellByPosition(0, 8).getStringValue().strip().startsWith("Stato richiesta asilo") ||
+				!table.getCellByPosition(0, 9).getStringValue().strip().startsWith("Lingua madre") ||
+				!table.getCellByPosition(0, 10).getStringValue().strip().startsWith("Altre lingue")) {
+			throw new RuntimeException("formato non corretto");
+		}
+		if(skipPersonalData) {
+			table.removeRowsByIndex(0, table.getRowCount());
+		} else {
+			for(Row row : table.getRowList()) {
+				String field = row.getCellByIndex(0).getStringValue();
+				if(field.isBlank()) {
+					continue;
+				}
+				if(field.startsWith("Data")) {
+					row.getCellByIndex(1).removeContent();
+					row.getCellByIndex(1).setDateValue(new GregorianCalendar());
+					row.getCellByIndex(1).setStringValue(null);
+					row.getCellByIndex(1).setDisplayText(null);
+				} else if(field.startsWith("Lingua madre") || 
+						field.startsWith("Altre lingue") ||
+						field.startsWith("Cittadinanza")) {
+					continue;
+				} else {
+					Cell cell = row.getCellByIndex(1);
+					cell.removeContent();
+					cell.setStringValue(null);
+				}
+			}
+		}
+		document.save(outputFile);
+	}
+	
 	public static void main(String[] args) {
 		PersonalDataApp app = new PersonalDataApp();
 		List<File> files = new ArrayList<>();
@@ -262,6 +307,8 @@ public class PersonalDataApp {
 					app.extraxtSparProgettoFormativoTemplate(inputFile, outputFile, false);
 				} else if(file.getName().toUpperCase().startsWith("SPRAR_SCHEDA")) {
 					app.extraxtSparSchedaPersonaleTemplate(inputFile, outputFile, false);
+				} else if(file.getName().toUpperCase().startsWith("SCHEDA PERSONALE")) {
+					app.extraxtSchedaPersonaleTemplate(inputFile, outputFile, false);
 				} else {
 					continue;
 				}
