@@ -3,9 +3,6 @@ package it.smartcommunitylab.bridge.personaldata;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
@@ -23,44 +20,43 @@ import org.odftoolkit.simple.text.Section;
  *
  */
 public class PersonalDataApp {
-	
-	public void extraxtCasCVTemplate(String inputFile, String outputFile, 
-			boolean skipPersonalData) throws Exception {
+
+	public void extraxtCasCVTemplate(String inputFile, String outputFile, boolean skipPersonalData) throws Exception {
 		TextDocument document = TextDocument.loadDocument(inputFile);
 		Paragraph initParagraph = document.getParagraphByIndex(0, true);
-		if(!initParagraph.getTextContent().strip().startsWith("CURRICULUM VITAE")) {
+		if (!initParagraph.getTextContent().trim().startsWith("CURRICULUM VITAE")) {
 			throw new RuntimeException("formato non corretto");
 		}
 		Iterator<Section> sectionIterator = document.getSectionIterator();
-		while(sectionIterator.hasNext()) {
+		while (sectionIterator.hasNext()) {
 			Section section = sectionIterator.next();
 			Iterator<Paragraph> paragraphIterator = section.getParagraphIterator();
 			int count = 0;
 			boolean skipSection = false;
-			while(paragraphIterator.hasNext() && !skipSection) {
+			while (paragraphIterator.hasNext() && !skipSection) {
 				Paragraph paragraph = paragraphIterator.next();
-				if(count == 0) {
-					if(!paragraph.getTextContent().strip().startsWith("Nome e Cognome")) {
+				if (count == 0) {
+					if (!paragraph.getTextContent().trim().startsWith("Nome e Cognome")) {
 						skipSection = true;
 						continue;
 					}
 				}
-				if((count == 1) && !paragraph.getTextContent().strip().startsWith("Residenza")) {
+				if ((count == 1) && !paragraph.getTextContent().trim().startsWith("Residenza")) {
 					throw new RuntimeException("formato non corretto");
 				}
-				if((count == 2) && !paragraph.getTextContent().strip().startsWith("Nato a")) {
+				if ((count == 2) && !paragraph.getTextContent().trim().startsWith("Nato a")) {
 					throw new RuntimeException("formato non corretto");
 				}
-				if((count == 4) && !paragraph.getTextContent().strip().startsWith("Cittadinanza")) {
+				if ((count == 4) && !paragraph.getTextContent().trim().startsWith("Cittadinanza")) {
 					throw new RuntimeException("formato non corretto");
-				}				
-				if((count == 5) && !paragraph.getTextContent().strip().startsWith("Codice Fiscale")) {
+				}
+				if ((count == 5) && !paragraph.getTextContent().trim().startsWith("Codice Fiscale")) {
 					throw new RuntimeException("formato non corretto");
-				}				
-				if((count >= 8) && (count <= 11)) {
+				}
+				if ((count >= 8) && (count <= 11)) {
 					paragraph.setTextContent(null);
 				}
-				if(count >= 13) {
+				if (count >= 13) {
 					paragraph.setTextContent(null);
 				}
 				count++;
@@ -68,30 +64,30 @@ public class PersonalDataApp {
 		}
 		document.save(outputFile);
 	}
-	
-	public void extraxtCasModelloSchedaTemplate(String inputFile, String outputFile, 
-			boolean skipPersonalData) throws Exception {
+
+	public void extraxtCasModelloSchedaTemplate(String inputFile, String outputFile, boolean skipPersonalData)
+			throws Exception {
 		TextDocument document = TextDocument.loadDocument(inputFile);
 		List<Table> tableList = document.getTableList();
 		Table table = tableList.get(0);
-		if(!table.getCellByPosition(0, 0).getStringValue().strip().startsWith("Nome") || 
-				!table.getCellByPosition(0, 1).getStringValue().strip().startsWith("Cognome") ||
-				!table.getCellByPosition(0, 2).getStringValue().strip().startsWith("Data di Nascita")) {
+		if (!table.getCellByPosition(0, 0).getStringValue().trim().startsWith("Nome")
+				|| !table.getCellByPosition(0, 1).getStringValue().trim().startsWith("Cognome")
+				|| !table.getCellByPosition(0, 2).getStringValue().trim().startsWith("Data di Nascita")) {
 			throw new RuntimeException("formato non corretto");
 		}
-		if(skipPersonalData) {
+		if (skipPersonalData) {
 			table.removeRowsByIndex(0, table.getRowCount());
 		} else {
-			for(Row row : table.getRowList()) {
+			for (Row row : table.getRowList()) {
 				String field = row.getCellByIndex(0).getStringValue();
-				if(field.isBlank()) {
+				if ((field == null) || field.isEmpty()) {
 					continue;
 				}
-				field = field.strip();
-				if(field.startsWith("Nome") || field.startsWith("Cognome")) {
+				field = field.trim();
+				if (field.startsWith("Nome") || field.startsWith("Cognome")) {
 					row.getCellByIndex(1).removeContent();
 				}
-				if(field.startsWith("Data")) {
+				if (field.startsWith("Data")) {
 					row.getCellByIndex(1).removeContent();
 					row.getCellByIndex(1).setDateValue(new GregorianCalendar());
 					row.getCellByIndex(1).setStringValue(null);
@@ -101,34 +97,34 @@ public class PersonalDataApp {
 		}
 		document.save(outputFile);
 	}
-	
-	public void extraxtSparProgettoFormativoTemplate(String inputFile, String outputFile, 
-			boolean skipPersonalData) throws Exception {
+
+	public void extraxtSparProgettoFormativoTemplate(String inputFile, String outputFile, boolean skipPersonalData)
+			throws Exception {
 		TextDocument document = TextDocument.loadDocument(inputFile);
 		List<Table> tableList = document.getTableList();
 		Table table = tableList.get(0);
-		if(!table.getCellByPosition(0, 0).getStringValue().strip().startsWith("Cognome") || 
-				!table.getCellByPosition(2, 0).getStringValue().strip().startsWith("Nome") ||
-				!table.getCellByPosition(0, 1).getStringValue().strip().startsWith("Codice Fiscale") ||
-				!table.getCellByPosition(0, 2).getStringValue().strip().startsWith("Nato a")) {
+		if (!table.getCellByPosition(0, 0).getStringValue().trim().startsWith("Cognome")
+				|| !table.getCellByPosition(2, 0).getStringValue().trim().startsWith("Nome")
+				|| !table.getCellByPosition(0, 1).getStringValue().trim().startsWith("Codice Fiscale")
+				|| !table.getCellByPosition(0, 2).getStringValue().trim().startsWith("Nato a")) {
 			throw new RuntimeException("formato non corretto");
 		}
-		if(skipPersonalData) {
+		if (skipPersonalData) {
 			table.removeRowsByIndex(0, table.getRowCount());
 		} else {
-			//cognome
+			// cognome
 			Cell cell = table.getCellByPosition(1, 0);
 			cell.removeContent();
 			cell.setStringValue(null);
-			//nome
+			// nome
 			cell = table.getCellByPosition(3, 0);
 			cell.removeContent();
 			cell.setStringValue(null);
-			//codice fiscale
+			// codice fiscale
 			cell = table.getCellByPosition(1, 1);
 			cell.removeContent();
 			cell.setStringValue(null);
-			//nato a
+			// nato a
 			cell = table.getCellByPosition(1, 2);
 			cell.removeContent();
 			cell.setStringValue(null);
@@ -140,81 +136,80 @@ public class PersonalDataApp {
 			cell.setStringValue(null);
 		}
 		table = tableList.get(3);
-		if(!table.getCellByPosition(0, 0).getStringValue().strip().startsWith("Residente a") ||
-				!table.getCellByPosition(3, 0).getStringValue().strip().startsWith("cap") ||
-				!table.getCellByPosition(0, 1).getStringValue().strip().startsWith("Indirizzo") ||
-				!table.getCellByPosition(0, 2).getStringValue().strip().startsWith("Domiciliato a") ||
-				!table.getCellByPosition(0, 3).getStringValue().strip().startsWith("Telefono") ||
-				!table.getCellByPosition(3, 3).getStringValue().strip().startsWith("email") ||
-				!table.getCellByPosition(0, 4).getStringValue().strip().startsWith("Titolo di studio")) {
+		if (!table.getCellByPosition(0, 0).getStringValue().trim().startsWith("Residente a")
+				|| !table.getCellByPosition(3, 0).getStringValue().trim().startsWith("cap")
+				|| !table.getCellByPosition(0, 1).getStringValue().trim().startsWith("Indirizzo")
+				|| !table.getCellByPosition(0, 2).getStringValue().trim().startsWith("Domiciliato a")
+				|| !table.getCellByPosition(0, 3).getStringValue().trim().startsWith("Telefono")
+				|| !table.getCellByPosition(3, 3).getStringValue().trim().startsWith("email")
+				|| !table.getCellByPosition(0, 4).getStringValue().trim().startsWith("Titolo di studio")) {
 			throw new RuntimeException("formato non corretto");
 		}
-		if(skipPersonalData) {
+		if (skipPersonalData) {
 			table.removeRowsByIndex(0, table.getRowCount());
 		} else {
-			//residente
+			// residente
 			Cell cell = table.getCellByPosition(1, 0);
 			cell.removeContent();
 			cell.setStringValue(null);
-			//cap
+			// cap
 			cell = table.getCellByPosition(4, 0);
 			cell.removeContent();
 			cell.setDoubleValue(0.0);
 			cell.setStringValue(null);
-			//indirizzo
+			// indirizzo
 			cell = table.getCellByPosition(1, 1);
 			cell.removeContent();
 			cell.setStringValue(null);
-			//domicilio
+			// domicilio
 			cell = table.getCellByPosition(2, 2);
 			cell.removeContent();
 			cell.setStringValue(null);
-			//telefono
+			// telefono
 			cell = table.getCellByPosition(1, 3);
 			cell.removeContent();
 			cell.setStringValue(null);
-			//email
+			// email
 			cell = table.getCellByPosition(4, 3);
 			cell.removeContent();
 			cell.setStringValue(null);
 		}
 		document.save(outputFile);
 	}
-	
-	public void extraxtSparSchedaPersonaleTemplate(String inputFile, String outputFile, 
-			boolean skipPersonalData) throws Exception {
+
+	public void extraxtSparSchedaPersonaleTemplate(String inputFile, String outputFile, boolean skipPersonalData)
+			throws Exception {
 		TextDocument document = TextDocument.loadDocument(inputFile);
 		List<Table> tableList = document.getTableList();
 		Table table = tableList.get(0);
-		if(!table.getCellByPosition(0, 0).getStringValue().strip().startsWith("COGNOME") || 
-				!table.getCellByPosition(0, 1).getStringValue().strip().startsWith("NOME") ||
-				!table.getCellByPosition(0, 2).getStringValue().strip().startsWith("DATA DI NASCITA") ||
-				!table.getCellByPosition(0, 3).getStringValue().strip().startsWith("NAZIONALITÀ") ||
-				!table.getCellByPosition(0, 4).getStringValue().strip().startsWith("DOMICILIO") ||
-				!table.getCellByPosition(0, 5).getStringValue().strip().startsWith("CODICE FISCALE") ||
-				!table.getCellByPosition(0, 6).getStringValue().strip().startsWith("TESSERA SANITARIA") ||
-				!table.getCellByPosition(0, 7).getStringValue().strip().startsWith("ISCRIZIONE CPI") ||
-				!table.getCellByPosition(0, 8).getStringValue().strip().startsWith("TELEFONO")) {
+		if (!table.getCellByPosition(0, 0).getStringValue().trim().startsWith("COGNOME")
+				|| !table.getCellByPosition(0, 1).getStringValue().trim().startsWith("NOME")
+				|| !table.getCellByPosition(0, 2).getStringValue().trim().startsWith("DATA DI NASCITA")
+				|| !table.getCellByPosition(0, 3).getStringValue().trim().startsWith("NAZIONALITÀ")
+				|| !table.getCellByPosition(0, 4).getStringValue().trim().startsWith("DOMICILIO")
+				|| !table.getCellByPosition(0, 5).getStringValue().trim().startsWith("CODICE FISCALE")
+				|| !table.getCellByPosition(0, 6).getStringValue().trim().startsWith("TESSERA SANITARIA")
+				|| !table.getCellByPosition(0, 7).getStringValue().trim().startsWith("ISCRIZIONE CPI")
+				|| !table.getCellByPosition(0, 8).getStringValue().trim().startsWith("TELEFONO")) {
 			throw new RuntimeException("formato non corretto");
 		}
-		if(skipPersonalData) {
+		if (skipPersonalData) {
 			table.removeRowsByIndex(0, table.getRowCount());
 		} else {
-			for(Row row : table.getRowList()) {
-				if((row.getRowIndex()==3) || (row.getRowIndex()==9) ||
-						(row.getRowIndex()==10) || (row.getRowIndex()==11)) {
+			for (Row row : table.getRowList()) {
+				if ((row.getRowIndex() == 3) || (row.getRowIndex() == 9) || (row.getRowIndex() == 10)
+						|| (row.getRowIndex() == 11)) {
 					continue;
-				} else if((row.getRowIndex()==13) || (row.getRowIndex()==16)) {
+				} else if ((row.getRowIndex() == 13) || (row.getRowIndex() == 16)) {
 					Cell cell = row.getCellByIndex(1);
 					cell.removeContent();
 					cell.setDateValue(new GregorianCalendar());
 					cell.setStringValue(null);
 					cell = row.getCellByIndex(2);
 					cell.removeContent();
-					cell.setDateValue(new GregorianCalendar());					
-					cell.setStringValue(null);					
-				} else if((row.getRowIndex()==2) || (row.getRowIndex()==14) ||
-						(row.getRowIndex()==15)) {
+					cell.setDateValue(new GregorianCalendar());
+					cell.setStringValue(null);
+				} else if ((row.getRowIndex() == 2) || (row.getRowIndex() == 14) || (row.getRowIndex() == 15)) {
 					Cell cell = row.getCellByIndex(1);
 					cell.removeContent();
 					cell.setDateValue(new GregorianCalendar());
@@ -228,41 +223,40 @@ public class PersonalDataApp {
 		}
 		document.save(outputFile);
 	}
-	
-	public void extraxtSchedaPersonaleTemplate(String inputFile, String outputFile, 
-			boolean skipPersonalData) throws Exception {
+
+	public void extraxtSchedaPersonaleTemplate(String inputFile, String outputFile, boolean skipPersonalData)
+			throws Exception {
 		TextDocument document = TextDocument.loadDocument(inputFile);
 		List<Table> tableList = document.getTableList();
 		Table table = tableList.get(1);
-		if(!table.getCellByPosition(0, 0).getStringValue().strip().startsWith("Nome") || 
-				!table.getCellByPosition(0, 1).getStringValue().strip().startsWith("Cognome") ||
-				!table.getCellByPosition(0, 2).getStringValue().strip().startsWith("Codice Fiscale") ||
-				!table.getCellByPosition(0, 3).getStringValue().strip().startsWith("Data di nascita") ||
-				!table.getCellByPosition(0, 4).getStringValue().strip().startsWith("Luogo di nascita") ||
-				!table.getCellByPosition(0, 5).getStringValue().strip().startsWith("Cittadinanza") ||
-				!table.getCellByPosition(0, 6).getStringValue().strip().startsWith("Indirizzo di Residenza") ||
-				!table.getCellByPosition(0, 7).getStringValue().strip().startsWith("Data di ingresso in Italia") ||
-				!table.getCellByPosition(0, 8).getStringValue().strip().startsWith("Stato richiesta asilo") ||
-				!table.getCellByPosition(0, 9).getStringValue().strip().startsWith("Lingua madre") ||
-				!table.getCellByPosition(0, 10).getStringValue().strip().startsWith("Altre lingue")) {
+		if (!table.getCellByPosition(0, 0).getStringValue().trim().startsWith("Nome")
+				|| !table.getCellByPosition(0, 1).getStringValue().trim().startsWith("Cognome")
+				|| !table.getCellByPosition(0, 2).getStringValue().trim().startsWith("Codice Fiscale")
+				|| !table.getCellByPosition(0, 3).getStringValue().trim().startsWith("Data di nascita")
+				|| !table.getCellByPosition(0, 4).getStringValue().trim().startsWith("Luogo di nascita")
+				|| !table.getCellByPosition(0, 5).getStringValue().trim().startsWith("Cittadinanza")
+				|| !table.getCellByPosition(0, 6).getStringValue().trim().startsWith("Indirizzo di Residenza")
+				|| !table.getCellByPosition(0, 7).getStringValue().trim().startsWith("Data di ingresso in Italia")
+				|| !table.getCellByPosition(0, 8).getStringValue().trim().startsWith("Stato richiesta asilo")
+				|| !table.getCellByPosition(0, 9).getStringValue().trim().startsWith("Lingua madre")
+				|| !table.getCellByPosition(0, 10).getStringValue().trim().startsWith("Altre lingue")) {
 			throw new RuntimeException("formato non corretto");
 		}
-		if(skipPersonalData) {
+		if (skipPersonalData) {
 			table.removeRowsByIndex(0, table.getRowCount());
 		} else {
-			for(Row row : table.getRowList()) {
+			for (Row row : table.getRowList()) {
 				String field = row.getCellByIndex(0).getStringValue();
-				if(field.isBlank()) {
+				if ((field == null) || field.isEmpty()) {
 					continue;
 				}
-				if(field.startsWith("Data")) {
+				if (field.startsWith("Data")) {
 					row.getCellByIndex(1).removeContent();
 					row.getCellByIndex(1).setDateValue(new GregorianCalendar());
 					row.getCellByIndex(1).setStringValue(null);
 					row.getCellByIndex(1).setDisplayText(null);
-				} else if(field.startsWith("Lingua madre") || 
-						field.startsWith("Altre lingue") ||
-						field.startsWith("Cittadinanza")) {
+				} else if (field.startsWith("Lingua madre") || field.startsWith("Altre lingue")
+						|| field.startsWith("Cittadinanza")) {
 					continue;
 				} else {
 					Cell cell = row.getCellByIndex(1);
@@ -273,25 +267,27 @@ public class PersonalDataApp {
 		}
 		document.save(outputFile);
 	}
-	
+
+	public static void traverse(File parentNode, List<File> files) {
+		if (parentNode.isDirectory()) {
+			File childNodes[] = parentNode.listFiles();
+			for (File childNode : childNodes) {
+				traverse(childNode, files);
+			}
+		} else {
+			files.add(parentNode);
+		}
+	}
+
 	public static void main(String[] args) {
 		PersonalDataApp app = new PersonalDataApp();
-		List<File> files = new ArrayList<>();
-		try {
-			for (int i = 0; i < args.length; i++) {
-				String dir = args[i];
-				Files.walk(Paths.get(dir))
-				.filter(path -> 
-					path.toFile().isFile() && path.toString().toLowerCase().endsWith(".odt")
-				)
-				.forEach(path -> 
-					files.add(path.toFile())
-				);
-			}
-		} catch (IOException e1) {
-			e1.printStackTrace();
+		List<File> files = new ArrayList<File>();
+		for (int i = 0; i < args.length; i++) {
+			String dir = args[i];
+			File inputFolder = new File(dir);
+			traverse(inputFolder, files);
 		}
-		List<String> fileMatchList = new ArrayList<>();
+		List<String> fileMatchList = new ArrayList<String>();
 		String outputFile;
 		String inputFile;
 		int fileId = 0;
