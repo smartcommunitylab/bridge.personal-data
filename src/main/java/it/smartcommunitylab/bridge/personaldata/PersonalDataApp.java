@@ -293,26 +293,52 @@ public class PersonalDataApp {
 		int fileId = 0;
 		for(File file : files) {
 			inputFile = file.getAbsolutePath();
+			if(!inputFile.toLowerCase().contains(".odt")) {
+				System.err.println(inputFile + ":skip");
+				continue;
+			}
 			outputFile = "./odt/" + fileId + ".odt";
 			try {
-				if(file.getName().toUpperCase().startsWith("CAS_CV")) {
-					app.extraxtCasCVTemplate(inputFile, outputFile, false);
-				} else if(file.getName().toUpperCase().startsWith("CAS_MODELLO")) {
-					app.extraxtCasModelloSchedaTemplate(inputFile, outputFile, false);
-				} else if(file.getName().toUpperCase().startsWith("SPRAR_PROGETTO")) {
-					app.extraxtSparProgettoFormativoTemplate(inputFile, outputFile, false);
-				} else if(file.getName().toUpperCase().startsWith("SPRAR_SCHEDA")) {
-					app.extraxtSparSchedaPersonaleTemplate(inputFile, outputFile, false);
-				} else if(file.getName().toUpperCase().startsWith("SCHEDA PERSONALE")) {
-					app.extraxtSchedaPersonaleTemplate(inputFile, outputFile, false);
-				} else {
-					continue;
-				}
+				app.extraxtSchedaPersonaleTemplate(inputFile, outputFile, false);
 				fileMatchList.add(fileId + "," + inputFile);
 				fileId++;
+				continue;
 			} catch (Exception e) {
 				System.err.println(inputFile + ":" + e.getMessage());
 			}
+			try {
+				app.extraxtCasCVTemplate(inputFile, outputFile, false);
+				fileMatchList.add(fileId + "," + inputFile);
+				fileId++;
+				continue;
+			} catch (Exception e) {
+				System.err.println(inputFile + ":" + e.getMessage());
+			}
+			try {
+				app.extraxtCasModelloSchedaTemplate(inputFile, outputFile, false);
+				fileMatchList.add(fileId + "," + inputFile);
+				fileId++;
+				continue;
+			} catch (Exception e) {
+				System.err.println(inputFile + ":" + e.getMessage());
+			}
+			try {
+				app.extraxtSparProgettoFormativoTemplate(inputFile, outputFile, false);
+				fileMatchList.add(fileId + "," + inputFile);
+				fileId++;
+				continue;
+			} catch (Exception e) {
+				System.err.println(inputFile + ":" + e.getMessage());
+			}
+			try {
+				app.extraxtSparSchedaPersonaleTemplate(inputFile, outputFile, false);
+				fileMatchList.add(fileId + "," + inputFile);
+				fileId++;
+				continue;
+			} catch (Exception e) {
+				System.err.println(inputFile + ":" + e.getMessage());
+			}
+			System.err.println(inputFile + ": modello non trovato");
 		}
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter("fileMap.csv"));
